@@ -124,11 +124,11 @@ par[i]=NULL;
 return par;
 }
 
-void printDir() 
+/*void printDir() 
 { 
     char trr[1024]; 
     printf("\nDir: %s",getcwd(trr, sizeof(trr)),trr);  
-} 
+} */
 
 void prompt() 
 { 
@@ -143,26 +143,45 @@ first=0;
 }
 printf(">>>");
 } 
-
-int main()
-{ 
-   pid_t  pid; 
-char cmd[100];
-//char *envp[]={(char*) "PATH=/bin",0};   
-printDir();
-printf("   ");
+void fun(char **parameters)
+{
 ifstream f1;
-while(1)
-{
-
-char **parameters=(char**)malloc(sizeof(char *)*100);
- prompt();
- parameters =read();
-if(parameters[2]=="$PATH")
-{
+ f1.open("/home/deeksha/Desktop/bashrc.txt");
+if(strcmp(parameters[0],"$PATH")==0)
+        {
  
-f1.open("/home/deeksha/Desktop/bashrc.txt");
-int i=1;
+           
+             int i=1;
+            string line;
+            while(i<=4)
+           {
+                getline(f1,line);
+              if(i==3)
+              cout<<line;
+//c=fgetc(f);
+                i++;
+                }
+       }
+            if(strcmp(parameters[0],"$USER")==0)
+         {
+ 
+      // f1.open("/home/deeksha/Desktop/bashrc.txt");
+       int i=1;
+      string line;
+         while(i<=4)
+        {
+         getline(f1,line);
+        if(i==1)
+       cout<<line;
+//c=fgetc(f);
+           i++;
+        }
+      }
+      if(strcmp(parameters[0],"$LOG")==0)
+   {
+ 
+      //f1.open("/home/deeksha/Desktop/bashrc.txt");
+    int i=1;
 string line;
 while(i<=4)
 {
@@ -173,6 +192,46 @@ cout<<line;
 i++;
 }
 }
+ if(strcmp(parameters[0],"$HOME")==0)
+{
+ 
+//f1.open("/home/deeksha/Desktop/bashrc.txt");
+int i=1;
+string line;
+while(i<=4)
+{
+getline(f1,line);
+if(i==4)
+cout<<line;
+//c=fgetc(f);
+i++;
+}
+}
+}
+int main()
+{ 
+   pid_t  pid; 
+char cmd[100];
+//char *envp[]={(char*) "PATH=/bin",0};   
+//printDir();
+printf("   ");
+
+while(1)
+{
+
+char **parameters=(char**)malloc(sizeof(char *)*100);
+ prompt();
+ parameters =read();
+if(strcmp(parameters[0],"cd")==0)
+chdir(parameters[1]);
+else if(strcmp(parameters[0],"exit")==0)
+break;
+  else if(strcmp(parameters[0],"$HOME")==0||strcmp(parameters[0],"$LOG")==0||strcmp(parameters[0],"$USER")==0||strcmp(parameters[0],"$PATH")==0)
+          fun(parameters);
+
+
+else
+{
 pid=fork();
   if ( pid<0)
 { 
@@ -188,10 +247,11 @@ pid=fork();
   { 
   wait(NULL);
    }
-if(strcmp(parameters[0],"exit")==0)
-break;
+
 
 free(parameters);
+}
+
 } 
 
    return 0; 
