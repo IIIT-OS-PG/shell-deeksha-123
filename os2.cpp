@@ -16,20 +16,21 @@ void init()
  // char *des_path;
     //src_path="/home/deeksha/Desktop/bashrc.txt";
    // des_path=file[2];
-    FILE *fptr = fopen("/home/deeksha/Desktop/bashrc.txt", "w+"); 
+    FILE *fileptr = fopen("/home/deeksha/Desktop/bashrc.txt", "w+"); 
  char * user_name=getenv("USER");
  char * log =getenv("LOGNAME");
 char * path=getenv("PATH");
 char * home=getenv("HOME");
 pid_t pid=getppid();
 char p[10];
+
+fprintf(fileptr,"%s\n", user_name); 
+fprintf(fileptr,"%s\n", log); 
+fprintf(fileptr,"%s\n", path); 
+fprintf(fileptr,"%s\n", home); 
 sprintf(p,"%d",pid);
-fprintf(fptr,"%s\n", user_name); 
-fprintf(fptr,"%s\n", log); 
-fprintf(fptr,"%s\n", path); 
-fprintf(fptr,"%s\n", home); 
-fprintf(fptr,"%s\n",p);
-fclose(fptr); 
+fprintf(fileptr,"%s\n",p);
+fclose(fileptr); 
 
 }
 char **  read(char  *cmd)
@@ -66,7 +67,7 @@ return par;
 }
 void pipe_parse(char * parameters[],char *cmd,int n)
 {
-cout<<"jii";
+//cout<<"";
 
    char*pipe_d;
   strcpy(pipe_d,cmd);
@@ -133,20 +134,21 @@ printf(">>>");
 void fun(char **parameters)
 {
 ifstream f1;
+//FILE * f1;
+//char c;
  f1.open("/home/deeksha/Desktop/bashrc.txt");
 if(strcmp(parameters[0],"$PATH")==0)
         {
  
            
-             int i=1;
+             //int i=1;
             string line;
-            while(i<=4)
+            for(int i=1;i<=5;i++)
            {
                 getline(f1,line);
               if(i==3)
               cout<<line;
-//c=fgetc(f);
-                i++;
+                //i++;
                 }
 cout<<endl;
        }
@@ -154,15 +156,15 @@ cout<<endl;
          {
  
       // f1.open("/home/deeksha/Desktop/bashrc.txt");
-       int i=1;
+      // int i=1;
       string line;
-         while(i<=4)
+         for(int i=1;i<=5;i++)
         {
          getline(f1,line);
         if(i==1)
        cout<<line;
 //c=fgetc(f);
-           i++;
+           
         }
 cout<<endl;
       }
@@ -170,15 +172,15 @@ cout<<endl;
    {
  
       //f1.open("/home/deeksha/Desktop/bashrc.txt");
-    int i=1;
+    //int i=1;
 string line;
-while(i<=4)
+for(int i=1;i<=5;i++)
 {
 getline(f1,line);
 if(i==2)
 cout<<line;
 //c=fgetc(f);
-i++;
+//i++;
 }
 cout<<endl;
 }
@@ -186,30 +188,30 @@ if(strcmp(parameters[0],"$$")==0)
 {
  cout<<"3840"<<endl;
 f1.open("/home/deeksha/Desktop/bashrc.txt");
-int i=1;
+//int i=1;
 string line;
-while(i<=5)
+for(int i=1;i<=5;i++)
 {
 getline(f1,line);
 if(i==5)
 cout<<line;
 //c=fgetc(f);
-i++;
+//i++;
 }
 }
  if(strcmp(parameters[0],"$HOME")==0)
 {
  
 //f1.open("/home/deeksha/Desktop/bashrc.txt");
-int i=1;
+//int i=1;
 string line;
-while(i<=4)
+for(int i=1;i<=5;i++)
 {
 getline(f1,line);
 if(i==4)
 cout<<line;
 //c=fgetc(f);
-i++;
+//i++;
 }
 cout<<endl;
 }
