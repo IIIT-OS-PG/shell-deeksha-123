@@ -64,43 +64,45 @@ pc=strtok(NULL," \n");
 par[i]=NULL;
 return par;
 }
-void pipe_parse(char * parameters[],char *cmd)
+void pipe_parse(char * parameters[],char *cmd,int n)
 {
-char **par=(char**)malloc(sizeof(char *)*100);
+cout<<"jii";
 
    char*pipe_d;
   strcpy(pipe_d,cmd);
-cout<<cmd;
+//cout<<cmd;
 char* array[1000];
 int i=0,j=0;
 char * pch;
 int fd[2],f=0;
 pch=strtok(pipe_d,"|");
 
-
-while(*pch!=NULL)
+cout<<pipe_d;
+while(pch!=NULL)
 {  
 array[i++]=strdup(pch);
 pch=strtok(pipe_d, "|");
 }
 //array[1][2]=NULL;
-array[2]=NULL;
+array[i]=NULL;
 int k=0;
+pid_t pi;
 for(int l=0;l<i;l++)
 {
+char **par=(char**)malloc(sizeof(char *)*100);
 par=read(array[l]);
 
                 pipe(fd);
-                int pi=fork();
+                pi=fork();
                if(pi<0)
             printf("error");
            else if(pi==0)
                  {              
                   dup2(f,0);
-                  if(k==1)
+                  if(k!=i-1)
                  dup2(fd[1],1);
-                 close(fd[1]);
                  close(fd[0]);
+                 close(fd[1]);
                  execvp(par[0],par);
               }
                   else
@@ -110,7 +112,7 @@ par=read(array[l]);
                 f=fd[0];
                //execvp([1],array);
             }
-         
+       free(par);  
 }
 
 } 
@@ -236,7 +238,7 @@ long int src_fd;
 int fd;
 src_fd=open(parameters[k-1],O_CREAT|O_WRONLY|O_APPEND,0700);
 
-cout<<k<<endl;
+//cout<<k<<endl;
 //string s=parameters[k-2];
 //cout<<s<<endl;
 parameters[k-2]=NULL;
@@ -254,7 +256,7 @@ char cmd[1024];
 //char *envp[]={(char*) "PATH=/bin",0};   
 //printDir();
 printf("   ");
-int i=0,n=0,n1=0,j=0,k=0,n2;
+int i=0,n=0,n1=0,j=0,k=0,n2=0;
 
 while(1)
 {
@@ -281,7 +283,7 @@ if(strcmp(parameters[k],">>")==0)
 n2++;
 k++;
 }
-//cout<<j;
+//cout<<n;
 if(strcmp(parameters[0],"cd")==0)
 chdir(parameters[1]);
 else if(strcmp(parameters[0],"$$")==0)
@@ -303,9 +305,11 @@ pid=fork();
    } 
    if (pid == 0)
      {   
-         if(n>0) 
+//cout<<n;
+         if(n==1) 
           {
-            pipe_parse(parameters,cmd);
+
+            pipe_parse(parameters,cmd,i);
           }
 else if(n1==1)
 {
