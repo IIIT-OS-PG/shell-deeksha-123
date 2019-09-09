@@ -7,6 +7,7 @@
 #include<string.h>
 #include <fstream>
 #include<iostream>
+#include <fcntl.h>
 using namespace std;
 void init()
 {
@@ -20,115 +21,99 @@ void init()
  char * log =getenv("LOGNAME");
 char * path=getenv("PATH");
 char * home=getenv("HOME");
+pid_t pid=getppid();
+char p[10];
+sprintf(p,"%d",pid);
 fprintf(fptr,"%s\n", user_name); 
 fprintf(fptr,"%s\n", log); 
 fprintf(fptr,"%s\n", path); 
 fprintf(fptr,"%s\n", home); 
+fprintf(fptr,"%s\n",p);
 fclose(fptr); 
 
 }
- 
-void pipe_handle(char*inp[],int i)
-          {
-            int fd[2]={0,1};
-                int k=0;
-                int f=0;
-                int j=0;
-              char * pch, *pch1;
-             char * array[100];
-               char * array1[100];
-              pch=strtok(inp[0]," /n");
-             pch1=strtok(inp[1]," /n");
-            while(pch!=NULL)
-              {  
-                array[j++]=strdup(pch);
-                pch=strtok(NULL," /n");
-              }
-printf(inp[0]);
-            j=0;
-           while(pch1!=NULL)
-              {  
-                  array1[j++]=strdup(pch1);
-                  pch1=strtok(NULL," /n");
-              }
-          while(*inp !=NULL)
-             {
+char **  read(char  *cmd)
+{
+char line[1024];
+char *pl=line;
+init();
+int count=0,i=0,j=0,p=0;
+char *pc,**par=(char**)malloc(sizeof(char *)*100);
+while(1)
+{
+par[i]=(char*)malloc(sizeof(char )*100);
+int c = getchar();
+cmd[count++]=c;
+if(char(c)=='|')
+p++;
+if(c=='\n')break;
+}
+cmd[count]='\0';
+strcpy(pl,cmd);
+//cout<<line;
+FILE *fp=fopen("history.txt","a");
+fputs(line,fp);
+fclose(fp);
+if(count==1)return NULL;
+pc=strtok(line," \n");
+while(pc!=NULL)
+{  
+par[i++]=strdup(pc);
+pc=strtok(NULL," \n");
+}
+par[i]=NULL;
+return par;
+}
+void pipe_parse(char * parameters[],char *cmd)
+{
+char **par=(char**)malloc(sizeof(char *)*100);
+
+   char*pipe_d;
+  strcpy(pipe_d,cmd);
+cout<<cmd;
+char* array[1000];
+int i=0,j=0;
+char * pch;
+int fd[2],f=0;
+pch=strtok(pipe_d,"|");
+
+
+while(*pch!=NULL)
+{  
+array[i++]=strdup(pch);
+pch=strtok(pipe_d, "|");
+}
+//array[1][2]=NULL;
+array[2]=NULL;
+int k=0;
+for(int l=0;l<i;l++)
+{
+par=read(array[l]);
+
                 pipe(fd);
-               int pi=fork();
+                int pi=fork();
                if(pi<0)
-            perror("error");
+            printf("error");
            else if(pi==0)
                  {              
                   dup2(f,0);
-                  if(*(inp+1)!=NULL)
+                  if(k==1)
                  dup2(fd[1],1);
-               close(fd[1]);
-             close(fd[0]);
-
+                 close(fd[1]);
+                 close(fd[0]);
+                 execvp(par[0],par);
               }
                   else
             {
                  wait(NULL);
                 close(fd[1]);
                 f=fd[0];
-               inp++;
-
+               //execvp([1],array);
             }
-         }
+         
+}
+
 } 
-void fun(char line[],char *par[],int n)
-{
-char *array[100],*pch;
-int i=0,j=0;
-pch=strtok(line,"|");
-while(pch!=NULL)
-{  
-array[i++]=strdup(pch);
-pch=strtok(NULL,"|");
-}
-for(int j=0;j<i;j++)
-par[j]=array[j];
-par[i]=NULL;
-pipe_handle(par,n);
-}
-
-
-
-char **  read()
-{
-char line[1024];
-init();
-int count=0,i=0,j=0,p=0;
-char *pch,**par=(char**)malloc(sizeof(char *)*100);
-while(1)
-{
-par[i]=(char*)malloc(sizeof(char )*100);
-int c = getchar();
-line[count++]=c;
-if(char(c)=='|')
-p++;
-if(c=='\n')break;
-}
-line[count]='\0';
-FILE *fp=fopen("history.txt","a");
-fputs(line,fp);
-fclose(fp);
-if(count==1)return NULL;
-pch=strtok(line," \n");
-while(pch!=NULL)
-{  
-par[i++]=strdup(pch);
-pch=strtok(NULL," \n");
-}
-par[i]=NULL;
-return par;
-}
-
-/*void printDir() 
-{ 
-    char trr[1024]; 
-    printf("\nDir: %s",getcwd(trr, sizeof(trr)),trr);  
-} */
 
 void prompt() 
 { 
@@ -161,6 +146,7 @@ if(strcmp(parameters[0],"$PATH")==0)
 //c=fgetc(f);
                 i++;
                 }
+cout<<endl;
        }
             if(strcmp(parameters[0],"$USER")==0)
          {
@@ -176,6 +162,7 @@ if(strcmp(parameters[0],"$PATH")==0)
 //c=fgetc(f);
            i++;
         }
+cout<<endl;
       }
       if(strcmp(parameters[0],"$LOG")==0)
    {
@@ -187,6 +174,22 @@ while(i<=4)
 {
 getline(f1,line);
 if(i==2)
+cout<<line;
+//c=fgetc(f);
+i++;
+}
+cout<<endl;
+}
+if(strcmp(parameters[0],"$$")==0)
+{
+ cout<<"3840"<<endl;
+f1.open("/home/deeksha/Desktop/bashrc.txt");
+int i=1;
+string line;
+while(i<=5)
+{
+getline(f1,line);
+if(i==5)
 cout<<line;
 //c=fgetc(f);
 i++;
@@ -206,24 +209,83 @@ cout<<line;
 //c=fgetc(f);
 i++;
 }
+cout<<endl;
 }
+
 }
+
+void redirection(char ** parameters,int j)
+{
+long int src_fd;
+int fd;
+src_fd=open(parameters[j-1],O_CREAT|O_WRONLY,0700);
+
+
+//string s=parameters[0];
+//cout<<s;
+parameters[j-2]=NULL;
+dup2(src_fd,1);
+execvp(parameters[0],parameters);
+close(src_fd);
+}
+
+
+void redirection1(char ** parameters,int k)
+{
+long int src_fd;
+int fd;
+src_fd=open(parameters[k-1],O_CREAT|O_WRONLY|O_APPEND,0700);
+
+cout<<k<<endl;
+//string s=parameters[k-2];
+//cout<<s<<endl;
+parameters[k-2]=NULL;
+dup2(src_fd,1);
+execvp(parameters[0],parameters);
+close(src_fd);
+}
+
+
+
 int main()
 { 
    pid_t  pid; 
-char cmd[100];
+char cmd[1024];
 //char *envp[]={(char*) "PATH=/bin",0};   
 //printDir();
 printf("   ");
+int i=0,n=0,n1=0,j=0,k=0,n2;
 
 while(1)
 {
 
 char **parameters=(char**)malloc(sizeof(char *)*100);
  prompt();
- parameters =read();
+ parameters =read(cmd);
+//cout<<cmd[3];
+while(parameters[i]!=NULL)
+{
+if(strcmp(parameters[i],"|")==0)
+n++;
+i++;
+}
+while(parameters[j]!=NULL)
+{
+if(strcmp(parameters[j],">")==0)
+n1++;
+j++;
+}
+while(parameters[k]!=NULL)
+{
+if(strcmp(parameters[k],">>")==0)
+n2++;
+k++;
+}
+//cout<<j;
 if(strcmp(parameters[0],"cd")==0)
 chdir(parameters[1]);
+else if(strcmp(parameters[0],"$$")==0)
+cout<<"3840"<<endl;
 else if(strcmp(parameters[0],"exit")==0)
 break;
   else if(strcmp(parameters[0],"$HOME")==0||strcmp(parameters[0],"$LOG")==0||strcmp(parameters[0],"$USER")==0||strcmp(parameters[0],"$PATH")==0)
@@ -240,8 +302,22 @@ pid=fork();
       exit(1); 
    } 
    if (pid == 0)
-{   
-      execvp(parameters[0],parameters);
+     {   
+         if(n>0) 
+          {
+            pipe_parse(parameters,cmd);
+          }
+else if(n1==1)
+{
+
+redirection(parameters,j);
+}
+else if(n2==1)
+{
+redirection1(parameters,k);
+}
+          else
+          execvp(parameters[0],parameters);
    } 
    else
   { 
